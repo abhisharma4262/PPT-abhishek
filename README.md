@@ -7,9 +7,10 @@ This folder holds the files the skill uses.
 | Folder | What it is |
 |---|---|
 | `template/Myridius_Template_2026.pptx` | The 2026 template: cover, content sample, divider, end slide (keep this order) |
-| `tools/mkit.py` | HTML slide kit: palette, header at template positions (eyebrow and subtitle optional), icons (house size and thin stroke by default), `banner()`, `band_items()`, `link()`, `sources_line()`, `metric_list()`, `badge()`, `dot_list()`, `legend()`, ring and arc helpers |
+| `tools/mkit.py` | HTML slide kit: palette, header at template positions (eyebrow and subtitle optional), icons (house size and thin stroke by default), `banner()`, `band_items()`, `link()`, `sources_line()`, `metric_list()`, `badge()`, `dot_list()`, `tick_list()`, `legend()`, ring and arc helpers |
 | `tools/patterns.py` | Brochure-style patterns (scatter to hub to card, output card, product window, flow ribbons) and building blocks for new pictures (chat bubbles, workflow nodes, 3D layers, orbit pills, loop arrows, waffle grids and more) |
-| `tools/html2pptx.py` | HTML deck to editable PPTX (shapes, text boxes, native SVG icons, hyperlinks, strikethrough) |
+| `tools/html2pptx.py` | HTML deck to editable PPTX (shapes, text boxes, native SVG icons, hyperlinks, strikethrough; every list as one text box with native bullets) |
+| `tools/native_bullets.py` | Makes each list one text box with native teal dot bullets; run it with `--cards N` to fix lists on slides that were built earlier or edited by hand |
 | `tools/merge_into_template.py` | Puts the slides into the template with cover, dividers, end slide, logo and page numbers |
 | `tools/group_anim.py` | Groups tagged shapes, rotates them and adds light entrance animations (After Previous, fade or wipe) |
 | `tools/add_slide_link.py` | Makes a text box or button jump to another slide (for example the services slide to the deep dives) |

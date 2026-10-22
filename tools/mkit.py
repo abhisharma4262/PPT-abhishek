@@ -127,16 +127,32 @@ def badge(letter, v='dk', size=42):
     return (f'<span class="thb {v}" style="width:{size}px;height:{size}px;font-size:{size // 2}px;line-height:{size}px;'
             f'border-radius:{max(6, size // 4)}px">{letter}</span>')
 
-def dot_list(items, size=20, gap=10, color=None):
-    """Bulleted list with teal dots. Use this instead of <ul>/<li>: list markers are lost in the PPTX export."""
+_LIST_N = [0]
+
+def _list_spec(kind, color, gap, lh):
+    """Tag for one list. tools/native_bullets.py turns every tagged list into ONE text box whose paragraphs
+    carry native PowerPoint bullets (the bullet moves, wraps and indents with the text; no separate dot shapes)."""
+    _LIST_N[0] += 1
+    return f'L{_LIST_N[0]}/{kind}/{color.lstrip("#").upper()}/{gap}/{lh:g}'
+
+def dot_list(items, size=20, gap=10, color=None, dot=TEAL):
+    """Bulleted list with teal dots (use dot=PULSE on dark panels). Exports as ONE text box with native
+    PowerPoint bullets, so the owner can move and edit the list as a block. Use this (or tick_list) for every
+    list; never hand-build dots, and do not use <ul>/<li> (their markers are lost in the export).
+    Bold a key phrase with <b>...</b> inside an item."""
     c = f';color:{color}' if color else ''
-    return ''.join(f'<div class="sli" style="font-size:{size}px;margin-bottom:{gap}px{c}"><span class="dot"></span><span>{t}</span></div>'
-                   for t in items)
+    spec = _list_spec('dot', dot, gap, round(size * 1.4, 1))
+    rows = ''.join(f'<div class="sli" data-li="{i}" style="font-size:{size}px;margin-bottom:{gap}px{c}">'
+                   f'<span class="dot" style="background:{dot}"></span><span>{t}</span></div>' for i, t in enumerate(items))
+    return f'<div data-list="{spec}">{rows}</div>'
 
 def tick_list(items, size=20, gap=12, color=TEAL):
-    """List with a thin check icon before each item."""
-    return ''.join(f'<div class="tick" style="font-size:{size}px;margin-bottom:{gap}px">{icon("check", 22, color)}<span>{t}</span></div>'
-                   for t in items)
+    """List with a thin check before each item (sign-offs, outcomes). Exports as ONE text box with a native
+    check-mark bullet in `color`."""
+    spec = _list_spec('check', color, gap, round(size * 1.4, 1))
+    rows = ''.join(f'<div class="tick" data-li="{i}" style="font-size:{size}px;margin-bottom:{gap}px">{icon("check", 22, color)}<span>{t}</span></div>'
+                   for i, t in enumerate(items))
+    return f'<div data-list="{spec}">{rows}</div>'
 
 def legend(x, y, items):
     """Ownership key, e.g. legend(59, 206, [('dk', 'Myridius'), ('lt', 'Client and partners')])."""

@@ -309,6 +309,13 @@
       let s = '';
       if (g) s += 'g:' + g.getAttribute('data-grp') + (g.getAttribute('data-rot') ? '@' + g.getAttribute('data-rot') : '');
       if (a) s += (s ? '|' : '') + 'a:' + a.getAttribute('data-anim');
+      // list tag (dot_list / tick_list): list spec, item index and the list's box, for tools/native_bullets.py
+      const li = el.closest('[data-li]'), L = li && li.closest('[data-list]');
+      if (L) {
+        const r = L.getBoundingClientRect();
+        s += (s ? '|' : '') + 'l:' + L.getAttribute('data-list') + '/' + li.getAttribute('data-li') + '/' +
+             Math.round(r.left - S.left) + '/' + Math.round(r.top - S.top) + '/' + Math.round(r.width);
+      }
       return s;
     }
     function tagFrom(st, el) {

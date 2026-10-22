@@ -43,6 +43,8 @@ def main():
     subprocess.run(['node', os.path.join(HERE, 'build.js'), js, raw, title, svgs], check=True, env=env, cwd=os.path.dirname(os.path.abspath(html)))
     subprocess.run([sys.executable, os.path.join(HERE, 'postproc.py'), raw, mid, svgs], check=True)
     subprocess.run([sys.executable, os.path.join(HERE, 'round_pics.py'), mid, out], check=True)
+    # every dot_list / tick_list becomes one text box with native bullets
+    subprocess.run([sys.executable, os.path.join(HERE, 'native_bullets.py'), out, out], check=True)
     print('written', out)
 
 if __name__ == '__main__':

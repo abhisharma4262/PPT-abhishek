@@ -235,6 +235,7 @@ These are defaults that keep decks consistent, not a limit. The content decides 
 - Cards: white with a thin border (Moss at 16%) or very light fill; radius about 0.1 in. One dark card (Moss) marks the recommendation or the hero element.
 - Icons (the user corrected these by hand): line icons with round caps, glyph about 70 to 75% of its round tile, thin stroke of about 1/2 to 3/4 pt whatever the size, dark teal (Leaf) on mint tiles and Pulse on dark tiles. Tile size follows the need (40 to 76 px on the canvas is typical). Never small glyphs with thick strokes. mkit's `icon()`, `ico()` and `gicon()` default to this; pass `sw` only for a deliberate exception. Every list item and tile gets an icon. Use icons, not big letters or numbers, as the visual anchor of a tile.
 - Bands: a dark Leaf or Moss strip for a takeaway or a set of always-on items. Order inside a band is always icon, then label, then message (`banner()`), or icon, label, then separate items with their own icons and thin dividers (`band_items()`). Never put the icon between the label and the message.
+- **Lists are one text box with native bullets** (the user's rule, Oct 2026). Every set of bullets that belongs together is a single text box whose paragraphs carry real PowerPoint bullets, so the user can move, align and edit the list as one block. Never draw a separate dot shape per bullet or one text box per item; the user found those impossible to realign. The chosen style is a teal dot (Pulse on dark panels), Arial "●" at about 86% of the text size, with a hanging indent and a little space between items; sign-off and outcome lines use the Wingdings check in teal. Bold key phrases stay as bold runs inside the bullet text. mkit's `dot_list()` and `tick_list()` export this way automatically (section 8).
 - Fewer pills. Avoid status pills, tags and chips that make a slide busy. Theme references are a small badge plus text (`badge()`); "What it moves" is a ↑/↓ metric list (`metric_list()`); caselets end with a plain "Related: A1 Knowledge foundation, B1 Disputes" line. Mint chips are for named assets only (Code to Clarity, Eval suites).
 - Numbered steps and chevrons for sequences; connectors with arrowheads, always labelled (an unlabelled dotted line confused the user). Connectors sit in the foreground and must be visible in the exported PPTX; draw arrows inside a flex row or on an overlay SVG layer, never under a filled shape. When a whole group feeds a whole group, use one broad arrow, not several dotted lines that look like links to specific boxes, and never let a label sit on a line.
 - When one element of a diagram differs in kind (for example a "Run" layer across a stack), give it the same visual weight as its peers and frame the diagram (dotted container, ownership legend: dark = Myridius, light = client and partners) so it does not look bolted on.
@@ -339,7 +340,7 @@ The user wants explanatory slides to look like product-company brochures (the re
 - Validate the user's own draft content: keep what is right, correct what is not (with a reason and a source), and add what is missing.
 - Answer side questions (for example "what is RA standards?") directly before continuing.
 - When the user gives feedback on the spine, apply it across the whole deck, not just the slide named (for example, tool-agnostic wording everywhere once asked for one slide).
-- When the user edits a slide to show a preference (for example duplicating a slide and resizing its icons), read their edit from the file (sizes, stroke widths, colours), apply it deck-wide and record it in this skill.
+- When the user edits a slide to show a preference (for example duplicating a slide and resizing its icons), read their edit from the file (sizes, stroke widths, colours), apply it deck-wide and record it in this skill. Example: the user merged one list's bullets into a single text box by hand to show they want lists editable as one block; the kit now does that for every list.
 - Do not invent missing case-study facts (outcomes, situations). Write only what the material supports and flag the gaps; the user confirmed this is right.
 - When the user asks you to remember a preference, update this skill (propose the full updated SKILL.md) and the kit's `SKILL.md` copy; memory is not reliable across sessions.
 
@@ -356,6 +357,7 @@ Kit folder: `C:\Users\201637\OneDrive - RCG Global Services, Inc\Desktop\Desktop
 - `tools/merge_into_template.py`: cover, dividers, end slide, logo and page numbers.
 - `tools/group_anim.py`: turns tagged shapes into groups, applies rotation and adds entrance animations.
 - `tools/add_slide_link.py`: makes a text box (and its button shape) jump to another slide.
+- `tools/native_bullets.py`: turns each list into one text box with native bullets. `html2pptx.py` runs it for every list built with `dot_list()` / `tick_list()`; run it with `--cards N` on an existing or hand-edited slide to merge its dot shapes and per-item text boxes card by card.
 - `tools/insert_slides.py`, `tools/lint_text.py`, `tools/render_qa.py`, `tools/icons.py`, `tools/fonts.conf`.
 - `examples/example_deck.py` (options, comparison grid, governed path with `band_items`, client stories caselet), `examples/patterns_demo.py` (scatter to hub to card with animation and linked sources, UI window with metric list, flow ribbons) and `examples/style_catalogue.py` (the twelve catalogue styles, built from the building blocks).
 - "Claude outputs/Myridius_Visual_Style_Catalogue_v1.pptx": the rendered catalogue, with an index that links to each style.
@@ -374,7 +376,8 @@ python3 tools/add_slide_link.py Client_Topic_v1.pptx Client_Topic_v1.pptx --on 8
 python3 tools/lint_text.py Client_Topic_v1.pptx --no-stats
 python3 tools/render_qa.py Client_Topic_v1.pptx qa
 ```
-Run `group_anim.py` on every deck (it is harmless when nothing is tagged). Commit the final PPTX to the user's project folder.
+Run `group_anim.py` on every deck (it is harmless when nothing is tagged). `html2pptx.py` already merges each list into one text box with native bullets, inside the right animation group. Commit the final PPTX to the user's project folder.
+To fix lists on slides that were built earlier or edited by hand: `python3 tools/native_bullets.py deck.pptx deck_v2.pptx --cards 2,3` (keeps the slide's spacing; check the render).
 
 ### Kit rules
 - Canvas 1920 x 1080 px; 144 px = 1 in; 1 pt = 2 px, so the 9pt floor is 18 px. Content zone x 59 to 1860, y 190 to 958 (160 when there is no subtitle). Use `header(eyebrow or None, title, sub or None, accent=...)`; never move it.
@@ -391,7 +394,7 @@ Run `group_anim.py` on every deck (it is harmless when nothing is tagged). Commi
 - In a flex row, wrap every text run in its own `<span>`; bare text next to swatches or icons merges into one text box on export (a legend once read "Run by MyridiusYour platforms").
 - Arrowheads: `ah` (Moss), `ahl` (Leaf), `ahm` (Mint), `aht` (Teal), `ahs` (Slate). Use HTML text for labels; SVG `<text>` exports as separate letters (only for curved labels).
 - Icons: `icon()`, `ico()` (tile), `gicon()` (inside SVG). They export as native SVG pictures with PNG fallback, with the house stroke and size by default (`STROKE_PT`, `ICON_RATIO` in mkit).
-- Do not use HTML `<ul>`/`<li>`: their markers are lost in the export. Use `dot_list()` / `tick_list()`.
+- Build every list with `dot_list()` or `tick_list()` (pass `dot=PULSE` and `color='#fff'` on dark panels; bold a phrase with `<b>`, coloured if needed). They tag the list so the export makes one text box with native bullets. Never hand-build bullets from dot spans or one text box per item, and do not use HTML `<ul>`/`<li>` (their markers are lost in the export). Wrap each list in a `text_box()` sized to the column, because the list box takes that width.
 - Curved labels: use single spaces (`extract.js` collapses whitespace).
 - Screenshots: `<img>` with border-radius; exported as pictures with rounded corners.
 - Preview furniture (`.tpl`) shows where the logo and footer will sit and is not exported.
@@ -427,6 +430,7 @@ Design
 - [ ] Each visual was imagined from the content first, then matched to the repository; no pattern repeated within the deck by habit.
 - [ ] The polish qualities hold: real-looking content, one focal element, depth, a clear path for the eye, notes outside the picture, one colour logic, no dead space inside shapes.
 - [ ] Icons on list items and tiles, large glyphs with thin strokes; bands read icon, label, message; connectors labelled, in the foreground and visible in the exported render.
+- [ ] Every list is one text box with native teal dot bullets (or checks); no separate dot shapes or one-box-per-bullet lists left in the PPTX.
 - [ ] Animation only where motion carries meaning; order described in the reply.
 - [ ] No overflow, collisions or text touching edges; bottom 0.75 in clear for logo and footer.
 - [ ] Opened render of every slide looked at, not just the contact sheet.
