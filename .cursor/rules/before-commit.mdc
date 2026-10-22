@@ -1,0 +1,19 @@
+---
+description: Steps to follow whenever the user asks to commit and/or push this repository to GitHub
+alwaysApply: true
+---
+
+# Before every commit and push in this repository
+
+Whenever the user asks you to commit, push, or "commit and push", do these steps first, without asking:
+
+1. Refresh the colleague copy of the deck skill by running, from the repository root:
+   `python scripts/sync_plugin_skill.py`
+   If `python` is not found, use `py scripts/sync_plugin_skill.py`, then `python3 scripts/sync_plugin_skill.py`.
+   - It updates `skills/myridius-slide-decks/SKILL.md` from the root `SKILL.md`. Include that file in the commit when it changed.
+   - Do not edit `skills/myridius-slide-decks/SKILL.md` by hand; it is generated.
+   - If the script prints an ERROR, still commit and push the user's changes, then tell the user in one line that the colleague copy was not refreshed and quote the error.
+
+2. Do not commit client decks. Never stage new files in `Claude outputs/` (for example client `.pptx` decks or `.zip` files) unless the user names that exact file. This repository is public.
+
+3. Then commit and push as the user asked.

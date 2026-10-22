@@ -1,0 +1,14 @@
+{
+  "name": "myridius-deck-kit",
+  "description": "Myridius pre-sales deck kit: the Myridius slide decks skill with its template and build tools.",
+  "owner": {
+    "name": "Abhishek Sharma"
+  },
+  "plugins": [
+    {
+      "name": "myridius-slide-decks",
+      "source": "./",
+      "description": "Create or revise Myridius and Evoq slide decks in the Myridius 2026 template, story-led, research-backed and agency quality."
+    }
+  ]
+}
