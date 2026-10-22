@@ -5,7 +5,8 @@ The owner uses this on the services anchor slide ("Click here for use case deep 
   python3 add_slide_link.py deck.pptx out.pptx --on 8 --text "use case deep dive" --to 13
 
 --on: slide holding the text (1-based). --text: part of the text to find. --to: target slide (1-based).
-Any shape whose box contains the text box's centre (a button behind it) gets the same link.
+Any shape whose box contains the text box's centre and is less than three times its size (a button behind it,
+not the card around it) gets the same link.
 """
 import argparse
 from pptx import Presentation
@@ -31,7 +32,8 @@ def main():
             if other is sh or other.left is None or other.shape_type == 6:
                 continue
             if other.left <= cx <= other.left + other.width and other.top <= cy <= other.top + other.height \
-                    and other.width < sh.width * 3 and (not other.has_text_frame or not other.text_frame.text.strip()):
+                    and other.width < sh.width * 3 and other.height < sh.height * 3 \
+                    and (not other.has_text_frame or not other.text_frame.text.strip()):
                 other.click_action.target_slide = target
     prs.save(a.out)
     print(f'linked {len(hits)} shape(s) on slide {a.on} to slide {a.to}; written {a.out}')

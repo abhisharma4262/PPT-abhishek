@@ -123,6 +123,9 @@ def timing_xml(steps, step_ms, gap_ms):
 
 def process_slide(slide, step_ms, gap_ms):
     tree = slide.shapes._spTree
+    # slides with no tagged shapes are left exactly as they are (ids and any existing animation untouched)
+    if not any('~' in (c.get('name') or '') for c in tree.iter(q(P, 'cNvPr'))):
+        return 0
     # 1. rotation groups
     groups = {}
     for el in list(tree):

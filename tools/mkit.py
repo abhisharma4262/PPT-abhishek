@@ -61,6 +61,8 @@ ARROW_DEFS = f'''<defs>
 <marker id="ah" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="{MOSS}"/></marker>
 <marker id="ahl" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="{LEAF}"/></marker>
 <marker id="ahm" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="{MINT}"/></marker>
+<marker id="aht" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="{TEAL}"/></marker>
+<marker id="ahs" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="{SLATE}"/></marker>
 </defs>'''
 
 def svg(content):

@@ -8,7 +8,7 @@ This folder holds the files the skill uses.
 |---|---|
 | `template/Myridius_Template_2026.pptx` | The 2026 template: cover, content sample, divider, end slide (keep this order) |
 | `tools/mkit.py` | HTML slide kit: palette, header at template positions (eyebrow and subtitle optional), icons (house size and thin stroke by default), `banner()`, `band_items()`, `link()`, `sources_line()`, `metric_list()`, `badge()`, `dot_list()`, `legend()`, ring and arc helpers |
-| `tools/patterns.py` | Brochure-style visuals: scattered inputs to a hub to one clean output card, output card, product window, flow ribbons |
+| `tools/patterns.py` | Brochure-style patterns (scatter to hub to card, output card, product window, flow ribbons) and building blocks for new pictures (chat bubbles, workflow nodes, 3D layers, orbit pills, loop arrows, waffle grids and more) |
 | `tools/html2pptx.py` | HTML deck to editable PPTX (shapes, text boxes, native SVG icons, hyperlinks, strikethrough) |
 | `tools/merge_into_template.py` | Puts the slides into the template with cover, dividers, end slide, logo and page numbers |
 | `tools/group_anim.py` | Groups tagged shapes, rotates them and adds light entrance animations (After Previous, fade or wipe) |
@@ -18,6 +18,8 @@ This folder holds the files the skill uses.
 | `tools/render_qa.py` | Renders every slide and a contact sheet for review |
 | `examples/example_deck.py` | Four slide patterns, end to end (including the client stories caselet) |
 | `examples/patterns_demo.py` | The brochure patterns with linked sources, rotation and animation |
+| `examples/style_catalogue.py` | Source of the visual style catalogue: twelve styles built from the building blocks |
+| `Claude outputs/Myridius_Visual_Style_Catalogue_v1.pptx` | The catalogue deck: a reference for the quality bar, not a menu |
 | `SKILL.md` | Copy of the skill text, for versioning or packaging as a plugin later |
 
 ## How to use it

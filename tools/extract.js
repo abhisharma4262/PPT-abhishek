@@ -183,7 +183,7 @@
       c.setAttribute('width', r.width); c.setAttribute('height', r.height);
       items.push({ t: 'img', ...rel(r), svg: serializer.serializeToString(c) });
     }
-    const markerColor = { ah: '0C2226', ahl: '194247', ahm: 'D2F0C6' };
+    const markerColor = { ah: '0C2226', ahl: '194247', ahm: 'D2F0C6', aht: '09A78D', ahs: '337077' };
     function paint(el) {
       const cs = getComputedStyle(el);
       const fill = parseColor(cs.fill);

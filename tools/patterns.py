@@ -16,6 +16,15 @@ message, and do not repeat one pattern across a deck by default. Every pattern e
                       Tried for L1/L2 support and the owner preferred scatter_hub_card there; use it when
                       proportions between destinations are the message, label it "Illustrative".
 
+Building blocks (from the visual style catalogue, examples/style_catalogue.py). Use them to build any new
+picture the content calls for; they are parts, not slide layouts:
+  text_box()   positioned text block (children flow inside it)       anim()        wrap HTML in one entrance step
+  chat_bubble(), avatar()   chat messages for conversation mock-ups   node()        workflow / action card (ai, hu, dc)
+  port(), edge()            connector dots and arrows (SVG)           mini_row()    small beige row with icon and status
+  bento_cell()              card with icon, title, line and a body    steps_track() progress dots with labels
+  iso_plate()               one 3D (isometric) layer for stacks       ring_points(), orbit_pill()  nodes on a ring
+  loop_arcs()               arrowed arcs between nodes on a circle    waffle()      10 x 10 grid for one percentage
+
 Animation rule: add data-anim steps only when motion carries the meaning (things converging, a flow
 building up). Structural pictures (windows, grids, tables, stacks) stay static.
 
@@ -24,11 +33,26 @@ Usage:
     from patterns import PATTERN_CSS, scatter_hub_card, out_card, ui_window, flow_ribbons
     write_deck(path, slides, EXTRA_CSS + PATTERN_CSS, title)
 """
-from mkit import icon, ico, gicon, MOSS, LEAF, SLATE, TEAL, MINT, PULSE
+import math
+from mkit import icon, ico, gicon, arc_c, MOSS, LEAF, SLATE, TEAL, MINT, PULSE, WHITE
 
 PATTERN_CSS = r'''
 .flow{position:absolute}
 .flow *{position:static}
+.t{position:absolute}
+.t *{position:static}
+[data-anim]>.card,[data-anim]>.band,[data-anim]>.panel{position:absolute}
+.nh{font:700 21px/1.2 var(--f);color:var(--leaf)}
+.ns{font:400 18px/1.3 var(--f);color:var(--slate)}
+.bub{position:absolute;border-radius:20px;padding:13px 20px;font:400 20px/1.4 var(--f);color:var(--moss)}
+.bub.c{background:var(--mint);border-bottom-right-radius:6px}
+.bub.a{background:var(--beige);border-bottom-left-radius:6px}
+.node{position:absolute;border-radius:14px;background:#fff;border:1.5px solid var(--m16);display:flex;align-items:center;gap:14px;padding:0 16px}
+.node>*{position:static}
+.node.ai{background:var(--moss);border-color:var(--moss)}
+.node.ai .nh{color:#fff} .node.ai .ns{color:var(--mint)}
+.node.hu{background:var(--mint);border-color:var(--mint)}
+.node.dc{border-style:dashed;border-color:var(--slate)}
 .tkt{border-radius:14px;background:#fff;border:1.5px solid var(--m10);box-shadow:0 8px 22px rgba(12,34,38,.08);display:flex;align-items:center;gap:12px;padding:0 18px;font:500 19px/1.2 var(--f);color:var(--leaf);white-space:nowrap}
 .tkt>*{position:static}
 .tkt.nz{background:#FBFAF8;box-shadow:none;color:var(--slate);opacity:.62}
@@ -149,3 +173,133 @@ def flow_ribbons(src_x, mid_x, dst_x, y0, total_h, tiers, gap=18, node_w=26, lab
         ty += hh; dy += hh + gap
     s.append(f'<rect x="{mid_x}" y="{y0}" width="{node_w}" height="{total_h}" rx="6" fill="{TEAL}"/>')
     return s, body
+
+
+# ---------------------------------------------------------------- building blocks (style catalogue)
+def text_box(x, y, w, inner, style=''):
+    """Positioned text block; everything inside flows normally. Wrap each text run in its own element when
+    mixing it with icons or swatches in a flex row (bare text nodes merge into one text box on export)."""
+    return f'<div class="t" style="left:{x}px;top:{y}px;width:{w}px;{style}">{inner}</div>'
+
+
+def anim(step, html):
+    """Wrap positioned HTML in one entrance step (e.g. anim(2, ...) or anim('3w', ...)). Cards and bands inside
+    (and panels) stay absolutely positioned. Keep each step's blocks next to each other in the slide's paint order."""
+    return f'<div data-anim="{step}" style="left:0;top:0;width:0;height:0">{html}</div>'
+
+
+def chat_bubble(x, y, w, text, who='customer', bg=None):
+    """Chat message. who: 'customer' (mint, right-hand speaker) or 'agent' (beige; pass bg='#fff' on dark panels).
+    Height follows the text (20 px, line height 1.4, 13 px padding): about 56 px per line plus 28 px per extra line."""
+    cls = 'c' if who == 'customer' else 'a'
+    b = f'background:{bg};' if bg else ''
+    return f'<div class="bub {cls}" style="left:{x}px;top:{y}px;width:{w}px;{b}">{text}</div>'
+
+
+def avatar(x, y, ic='agent', size=40):
+    """Small round avatar beside an agent's chat bubble."""
+    return f'<span class="ico lt" style="position:absolute;left:{x}px;top:{y}px;width:{size}px;height:{size}px">{icon(ic, int(size * .7), LEAF)}</span>'
+
+
+def node(x, y, w, h, ic, title, sub='', kind='', tile=50, step=None):
+    """Workflow or action card: icon tile, bold title, slate line. kind: '' system (white), 'ai' (Moss, Pulse icon),
+    'hu' person (Mint), 'dc' decision (dashed), 'act' (white with a dark icon tile, for actions an agent took)."""
+    v = {'ai': 'pu', 'hu': 'wh', 'act': 'dk'}.get(kind, 'lt')
+    cls = {'ai': ' ai', 'hu': ' hu', 'dc': ' dc'}.get(kind, '')
+    a = f' data-anim="{step}"' if step is not None else ''
+    s = f'<div class="ns">{sub}</div>' if sub else ''
+    return (f'<div class="node{cls}"{a} style="left:{x}px;top:{y}px;width:{w}px;height:{h}px">{ico(ic, v, tile)}'
+            f'<div><div class="nh">{title}</div>{s}</div></div>')
+
+
+def port(x, y):
+    """Connector dot on the edge of a node (SVG; put inside an svg() or edge() layer)."""
+    return f'<circle cx="{x}" cy="{y}" r="7" fill="{WHITE}" stroke="{SLATE}" stroke-width="2"/>'
+
+
+def edge(d, step=None, color=LEAF, marker='ahl', extra='', dash=None, width=2.5):
+    """One arrowed connector as its own SVG layer (so it can be a separate animation step).
+    d: path with M, L, C, Q only. marker: ahl (Leaf), aht (Teal), ahs (Slate), ah (Moss), or None."""
+    a = f' data-anim="{step}"' if step is not None else ''
+    m = f' marker-end="url(#{marker})"' if marker else ''
+    ds = f' stroke-dasharray="{dash}"' if dash else ''
+    return (f'<svg class="abs"{a} style="left:0;top:0" width="1920" height="1080"><path d="{d}" stroke="{color}" '
+            f'stroke-width="{width}" fill="none"{ds}{m}/>{extra}</svg>')
+
+
+def mini_row(x, y, w, ic, text, right=''):
+    """Small beige row (icon, text, optional teal status on the right) for mock-ups inside cards."""
+    rt = f'<span style="margin-left:auto;font:600 18px/1 var(--f);color:var(--teal)">{right}</span>' if right else ''
+    return (f'<div class="t" style="left:{x}px;top:{y}px;width:{w}px;height:42px;border-radius:10px;background:var(--beige);'
+            f'display:flex;align-items:center;gap:10px;padding:0 14px;font:400 18px/1 var(--f);color:var(--leaf)">{icon(ic, 20, TEAL)}<span>{text}</span>{rt}</div>')
+
+
+def bento_cell(x, y, w, h, ic, title, line, body=''):
+    """Bento card: icon tile and title, one slate line, then any body (mini rows, a small chart, a track)."""
+    return (f'<div class="card" style="left:{x}px;top:{y}px;width:{w}px;height:{h}px"></div>'
+            + text_box(x + 26, y + 24, w - 52,
+                       f'<div style="display:flex;align-items:center;gap:14px">{ico(ic, "lt", 52)}<span class="nh" style="font-size:23px">{title}</span></div>'
+                       f'<div style="font:400 19px/1.35 var(--f);color:var(--slate);margin-top:12px">{line}</div>') + body)
+
+
+def steps_track(x0, y, labels, done, gap=104):
+    """Progress dots joined by a line, labels under each dot; the first `done` dots are filled.
+    Returns (svg_fragment, html) so the caller can place the SVG in a layer."""
+    s = [f'<path d="M{x0},{y} L{x0 + (len(labels) - 1) * gap},{y}" stroke="{TEAL}" stroke-width="3"/>']
+    lab = ''
+    for k, st in enumerate(labels):
+        x = x0 + k * gap
+        s.append(f'<circle cx="{x}" cy="{y}" r="13" fill="{TEAL if k < done else WHITE}" stroke="{TEAL}" stroke-width="3"/>')
+        lab += text_box(x - gap // 2, y + 22, gap, f'<div style="text-align:center;font:400 18px/1.2 var(--f);color:var(--slate)">{st}</div>')
+    return ''.join(s), lab
+
+
+def iso_plate(cx, cy, hw, hd, th, ic=None, dark=False, icon_size=50):
+    """One isometric layer: a diamond top (half-width hw, half-depth hd) with two side faces of thickness th.
+    Draw lower plates first; leave about 1.75 x hd between plates so each top stays readable.
+    Light plates: mint-tinted top, neutral sides. dark=True marks the layer Myridius runs."""
+    top = f'{cx - hw},{cy} {cx},{cy - hd} {cx + hw},{cy} {cx},{cy + hd}'
+    lf = f'{cx - hw},{cy} {cx},{cy + hd} {cx},{cy + hd + th} {cx - hw},{cy + th}'
+    rf = f'{cx},{cy + hd} {cx + hw},{cy} {cx + hw},{cy + th} {cx},{cy + hd + th}'
+    if dark:
+        f = (f'fill="{LEAF}"', f'fill="{SLATE}"', f'fill="{MOSS}"'); col = PULSE
+    else:
+        f = (f'fill="#E9F8E3" stroke="{TEAL}" stroke-opacity=".35" stroke-width="1.5"', 'fill="#E7E9E9"', 'fill="#D3D7D8"'); col = LEAF
+    s = f'<polygon points="{lf}" {f[1]}/><polygon points="{rf}" {f[2]}/><polygon points="{top}" {f[0]}/>'
+    return s + (gicon(ic, cx, cy + 14, icon_size, col) if ic else '')
+
+
+def ring_points(cx, cy, r, angles_deg):
+    """(x, y) for each angle on a circle; 0 degrees is 3 o'clock, -90 is 12 o'clock."""
+    return [(round(cx + r * math.cos(math.radians(a))), round(cy + r * math.sin(math.radians(a)))) for a in angles_deg]
+
+
+def orbit_pill(cx, cy, ic, text, variant='w'):
+    """Pill node centred on a ring: icon and label. variant 'w' (white, Moss outline) or 'm' (mint)."""
+    w = int(len(text) * 19 * 0.55 + 78)
+    bg = 'background:#fff;border:1.5px solid var(--moss)' if variant == 'w' else 'background:var(--mint);border:1.5px solid var(--mint)'
+    return (f'<div class="t" style="left:{cx - w // 2}px;top:{cy - 24}px;width:{w}px;height:48px;border-radius:24px;{bg};'
+            f'display:flex;align-items:center;justify-content:center;gap:10px;font:600 19px/1 var(--f);color:var(--leaf)">{icon(ic, 24, LEAF)}<span>{text}</span></div>')
+
+
+def loop_arcs(cx, cy, r, angles_deg, gap=0.26, color=TEAL, marker='aht'):
+    """Arrowed arcs from each node to the next around a circle (a flywheel or cycle). gap: radians kept clear
+    at each node. Returns SVG paths."""
+    out = []
+    n = len(angles_deg)
+    for k in range(n):
+        a0 = math.radians(angles_deg[k]) + gap
+        a1 = math.radians(angles_deg[(k + 1) % n] + (360 if k == n - 1 else 0)) - gap
+        sx, sy = cx + r * math.cos(a0), cy + r * math.sin(a0)
+        out.append(f'<path d="M{sx:.2f},{sy:.2f}{arc_c(cx, cy, r, a0, a1)}" stroke="{color}" stroke-width="3" fill="none" marker-end="url(#{marker})"/>')
+    return ''.join(out)
+
+
+def waffle(x, y, n, on, off, off_op=1, step=27, size=22):
+    """10 x 10 grid of squares with the first n filled: a percentage people can see at a glance."""
+    s = []
+    for i in range(100):
+        r, c = divmod(i, 10)
+        f, op = (on, 1) if i < n else (off, off_op)
+        s.append(f'<rect x="{x + c * step}" y="{y + r * step}" width="{size}" height="{size}" rx="5" fill="{f}" fill-opacity="{op}"/>')
+    return ''.join(s)
